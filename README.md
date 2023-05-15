@@ -16,6 +16,16 @@ You will need:
 
 Install dependencies with `pnpm install`.
 
+## Config
+
+Create a file named `config.json` in the root directory of the project. This file should contain the following:
+
+```json
+{
+  "token": "[discord bot token]"
+}
+```
+
 ## Scripts
 
 - `pnpm run start` - Run the project in production
