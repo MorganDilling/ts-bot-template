@@ -15,7 +15,9 @@ const client = new ExtendedClient({
 const eventFiles = globSync('./src/events/**/*.ts');
 const events = Object(Events);
 for (const file of eventFiles) {
-  const event = require(path.join(__dirname, `../${file}`)).default;
+  const event = new (require(path.join(__dirname, `../${file}`)).default)(
+    file.split(/[\\/]/).pop()?.split('.')[0]
+  );
 
   client.logger.info(`Loaded event ${event.name}`);
 
