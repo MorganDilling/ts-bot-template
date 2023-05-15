@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, CommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, CommandInteraction, CacheType } from 'discord.js';
 
 import ExtendedClient from './ExtendedClient';
 
@@ -8,7 +8,7 @@ export default abstract class Command {
     this.commandName = commandName;
   }
 
-  get data(): SlashCommandBuilder {
+  get data(): Partial<SlashCommandBuilder> {
     return new SlashCommandBuilder()
       .setName(this.commandName)
       .setDescription(`Undefined command ${this.commandName}`);
@@ -16,7 +16,7 @@ export default abstract class Command {
 
   public execute(
     client: ExtendedClient,
-    interaction: CommandInteraction
+    interaction: CommandInteraction<CacheType>
   ): void {
     client.logger.warn(
       `Command ${this.commandName} is missing execute() method`
