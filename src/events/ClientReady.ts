@@ -55,7 +55,5 @@ export default class ClientReady extends Event {
 
       client.buttons.set(btn.customId, btn);
     }
-
-    console.log(client.buttons);
   }
 }
