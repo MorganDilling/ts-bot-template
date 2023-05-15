@@ -55,5 +55,7 @@ export default class ClientReady extends Event {
 
       client.buttons.set(btn.customId, btn);
     }
+    
+    client.logger.info(`Ready!`);
   }
 }
