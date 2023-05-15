@@ -25,15 +25,9 @@ export default class InteractionCreate extends DiscordEvent {
         });
       }
     } else if (interaction.isButton()) {
-      console.log((interaction as ButtonInteraction).customId);
-
       const button = client.buttons.get(
         (interaction as ButtonInteraction).customId
       );
-
-      console.log(button);
-
-      console.log(client.buttons);
 
       if (!button)
         throw new ButtonNotFoundException(
