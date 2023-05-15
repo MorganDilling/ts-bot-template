@@ -14,10 +14,6 @@ export default class InteractionCreate extends DiscordEvent {
 
       if (!command) return;
 
-      client.logger.info(
-        `Command ${interaction.commandName} was called by ${interaction.user.tag}`
-      );
-
       try {
         command.execute(client, interaction);
       } catch (error) {
