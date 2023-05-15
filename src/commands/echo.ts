@@ -4,17 +4,21 @@ import {
   CommandInteraction,
   CacheType,
   CommandInteractionOptionResolver,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowData,
 } from 'discord.js';
 import ExtendedClient from 'classes/ExtendedClient';
 
 export default class Echo extends Command {
-  constructor(commandName: string) {
-    super(commandName);
+  constructor(name: string) {
+    super(name);
   }
 
   get data(): Partial<SlashCommandBuilder> {
     return new SlashCommandBuilder()
-      .setName(this.commandName)
+      .setName(this.name)
       .setDescription('Echoes your message (example command)')
       .addStringOption((option) =>
         option
@@ -24,10 +28,10 @@ export default class Echo extends Command {
       );
   }
 
-  public execute(
+  public async execute(
     client: ExtendedClient,
     interaction: CommandInteraction<CacheType>
-  ): void {
+  ): Promise<void> {
     const message = (
       interaction.options as CommandInteractionOptionResolver<CacheType>
     ).getString('message');
@@ -40,9 +44,16 @@ export default class Echo extends Command {
       return;
     }
 
-    interaction.reply({
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('echo-delete')
+        .setLabel('Delete')
+        .setStyle(ButtonStyle.Danger)
+    );
+
+    await interaction.reply({
       content: `> :information_source: ${message}`,
-      ephemeral: true,
+      components: [row as any],
     });
   }
 }

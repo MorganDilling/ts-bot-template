@@ -9,11 +9,12 @@ import { token } from '../../config.json';
 const rest = new REST({ version: '10' }).setToken(token);
 
 export default class ClientReady extends Event {
-  public static once = true;
+  public once = true;
 
-  public static async execute(client: ExtendedClient): Promise<void> {
+  public async execute(client: ExtendedClient): Promise<void> {
     client.logger.info(`Logged in as ${client.user?.tag}`);
 
+    // Commands
     const commands = globSync('./src/commands/**/*.ts');
 
     for (const command of commands) {
@@ -21,9 +22,9 @@ export default class ClientReady extends Event {
         command.split(/[\\/]/).pop()?.split('.')[0]
       );
 
-      client.logger.info(`Loaded command ${cmd.commandName}`);
+      client.logger.info(`Loaded command ${cmd.name}`);
 
-      client.commands.set(cmd.commandName, cmd);
+      client.commands.set(cmd.name, cmd);
     }
 
     const id = client.user?.id;
@@ -41,5 +42,20 @@ export default class ClientReady extends Event {
     } catch (error) {
       throw new CommandRegisterFailException(error as string);
     }
+
+    // Buttons
+    const buttons = globSync('./src/buttons/**/*.ts');
+
+    for (const button of buttons) {
+      const btn = new (require(`../../${button}`).default)(
+        button.split(/[\\/]/).pop()?.split('.')[0]
+      );
+
+      client.logger.info(`Loaded button ${btn.customId}`);
+
+      client.buttons.set(btn.customId, btn);
+    }
+
+    console.log(client.buttons);
   }
 }
