@@ -2,6 +2,7 @@ import Event from 'classes/Event';
 import ExtendedClient from 'classes/ExtendedClient';
 import { globSync } from 'glob';
 import { REST, Routes } from 'discord.js';
+import CommandRegisterFailException from 'exceptions/CommandRegisterFailException';
 
 import { token } from '../../config.json';
 
@@ -38,7 +39,7 @@ export default class ClientReady extends Event {
       });
       client.logger.info('Successfully registered commands');
     } catch (error) {
-      client.logger.error(error);
+      throw new CommandRegisterFailException(error as string);
     }
   }
 }
