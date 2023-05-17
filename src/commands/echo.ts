@@ -46,9 +46,9 @@ export default class Echo extends Command {
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId('echo-delete')
-        .setLabel('Delete')
-        .setStyle(ButtonStyle.Danger)
+        .setCustomId('echo-open-modal')
+        .setLabel('Open modal')
+        .setStyle(ButtonStyle.Primary)
     );
 
     await interaction.reply({

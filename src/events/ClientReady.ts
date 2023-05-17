@@ -55,7 +55,20 @@ export default class ClientReady extends Event {
 
       client.buttons.set(btn.customId, btn);
     }
-    
+
+    // Modals
+    const modals = globSync('./src/modals/**/*.ts');
+
+    for (const modal of modals) {
+      const mdl = new (require(`../../${modal}`).default)(
+        modal.split(/[\\/]/).pop()?.split('.')[0]
+      );
+
+      client.logger.info(`Loaded modal ${mdl.customId}`);
+
+      client.modals.set(mdl.customId, mdl);
+    }
+
     client.logger.info(`Ready!`);
   }
 }

@@ -1,8 +1,8 @@
 import Exception from './Exception';
 
 export default class ButtonNotFoundException extends Exception {
-  constructor(command: string) {
-    super(`Could not find button ${command}`);
+  constructor(customId: string) {
+    super(`Could not find button ${customId}`);
     this.name = 'ButtonNotFoundException';
   }
 }
