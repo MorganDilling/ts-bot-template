@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 import CommandNotFoundException from 'exceptions/CommandNotFoundException';
 import ButtonNotFoundException from 'exceptions/ButtonNotFoundException';
+import ModalNotFoundException from 'exceptions/ModalNotFoundException';
 import Exception from 'exceptions/Exception';
 
 export default class InteractionCreate extends DiscordEvent {
@@ -54,7 +55,7 @@ export default class InteractionCreate extends DiscordEvent {
       );
 
       if (!modal)
-        throw new ButtonNotFoundException(
+        throw new ModalNotFoundException(
           (interaction as ModalSubmitInteraction).customId
         );
 
