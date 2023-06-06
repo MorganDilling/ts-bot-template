@@ -1,47 +1,64 @@
-import Button from 'classes/Button';
-import Modal from 'classes/Modal';
-import { Collection } from 'discord.js';
+import Button from "classes/Button";
+import Modal from "classes/Modal";
+import { Collection } from "discord.js";
+
+/** Regex for extracting content from [] */
+const EXTRACTION_REGEX = /\[(.*?)\]/g;
 
 /**
+ * Extracts the dynamic data from the provided customId
+ * @param itemId The id to extract the data from
+ * @param route The routeId to get the keys from
+ */
+function getPathData(itemId: string, route: string) {
+	const itemDataArray = itemId.match(EXTRACTION_REGEX) ?? [];
+	const routeDataArray = route.match(EXTRACTION_REGEX) ?? [];
+	const pathDataArray = routeDataArray
+		.map((key, index) => {
+			const data = itemDataArray[index];
+			if (!data) return null;
+
+			return { [key]: data };
+		})
+		.filter(Boolean);
+
+	// Forcing types because TypeScript still things null values exist after Boolean filter
+	const pathData = pathDataArray as { [slug: string]: string }[];
+	return pathData.reduce((a, b) => ({ ...a, ...b }), {});
+}
+
+/**
+ * Returns the ids where the content in [] is replaced with [placeholder] to make filtering easier
+ * @param itemId The id to update
+ * @param route The routeId to update
+ */
+function getMatchingId(itemId: string, route: string) {
+	const matchingItemId = itemId.replace(EXTRACTION_REGEX, "[placeholder]");
+	const matchingRouteId = route.replace(EXTRACTION_REGEX, "[placeholder]");
+
+	return { itemId: matchingItemId, route: matchingRouteId };
+}
+
+/**
+ * @param collection The collection of registered modals and buttons
  * @param route The custom id of the button or modal. It can include dynamic parts. e.g. "support-close-[id]"
  */
-export default (
-  collection: Collection<string, Modal | Button>,
-  route: string
-): [Modal | Button | null, { [slug: string]: string }?] => {
-  const exactMatch = collection.get(route);
-  if (exactMatch) return [exactMatch];
+function dynamicCustomIdFinder(
+	collection: Collection<string, Modal | Button>,
+	route: string
+): [Modal | Button | null, { [slug: string]: string }?] {
+	const exactMatch = collection.get(route);
+	if (exactMatch) return [exactMatch];
 
-  let returnItem: Modal | Button | null = null;
-  let returnPathData: { [slug: string]: string } | undefined = undefined;
+	const returnItem = collection.find((item) => {
+		const itemId = item.customId;
+		const matchingIds = getMatchingId(itemId, route);
+		return matchingIds.itemId === matchingIds.route;
+	});
+	if (!returnItem) return [null, undefined];
 
-  collection.forEach((item: Modal | Button) => {
-    if (returnItem) return;
-    const customId = item.customId;
-    const customIdParts = customId.split('-');
-    const routeParts = route.split('-');
+	const pathData = getPathData(returnItem.customId, route);
+	return [returnItem, pathData];
+}
 
-    if (customIdParts.length !== routeParts.length) return;
-
-    let match = true;
-    const pathData: { [slug: string]: string } = {};
-
-    for (let i = 0; i < customIdParts.length; i++) {
-      if (customIdParts[i] === routeParts[i]) continue;
-      if (customIdParts[i].startsWith('[') && customIdParts[i].endsWith(']')) {
-        pathData[customIdParts[i].slice(1, -1)] = routeParts[i];
-        continue;
-      }
-
-      match = false;
-      break;
-    }
-
-    if (match) {
-      returnItem = item;
-      returnPathData = pathData;
-    }
-  });
-
-  return [returnItem, returnPathData];
-};
+export default dynamicCustomIdFinder;
