@@ -4,6 +4,42 @@ import { Collection } from "discord.js";
 
 /** Regex for extracting content from [] */
 const EXTRACTION_REGEX = /\[(.*?)\]/g;
+const DASH_REGEX = /\-/g;
+
+/**
+ * Returns an array of strings from the route that does not match the item with the same array index of the itemId
+ * @param itemId The itemId to parse
+ * @param route The route to parse
+ */
+function getUnmatchingData(itemId: string, route: string) {
+	const itemSegments = itemId.split(DASH_REGEX);
+	const routeSegments = route.split(DASH_REGEX);
+
+	return routeSegments.filter((segment, idx) => itemSegments[idx] !== segment);
+}
+
+/**
+ * Similar to getUnmatchingData but this returns the indices instead of the value
+ * @param itemId The itemId to parse
+ * @param route The route to parse
+ */
+function getUnmatchingDataIndices(itemId: string, route: string) {
+	const itemSegments = itemId.split(DASH_REGEX);
+	const routeSegments = route.split(DASH_REGEX);
+	const indices: number[][] = [];
+
+	routeSegments.forEach((segment, idx) => {
+		if (itemSegments[idx] === segment) return;
+
+		// The lengths of the segments combined + the amount of '-' (equals to idx)
+		const startIndex = itemSegments.slice(0, idx).reduce((a, b) => a + b.length, 0) + idx;
+		const endIndex = startIndex + segment.length;
+
+		indices.push([startIndex, endIndex]);
+	});
+
+	return indices;
+}
 
 /**
  * Extracts the dynamic data from the provided customId
@@ -11,16 +47,15 @@ const EXTRACTION_REGEX = /\[(.*?)\]/g;
  * @param route The routeId to get the keys from
  */
 function getPathData(itemId: string, route: string) {
-	function getCleanData(data: string[]): string[] {
-		return data.map((str) => str.replace(/\[/g, "").replace(/\]/g, ""));
-	}
+	const getCleanData = (data: string[]): string[] =>
+		data.map((str) => str.replace(/\[/g, "").replace(/\]/g, ""));
 
 	const itemDataArray = getCleanData(itemId.match(EXTRACTION_REGEX) ?? []);
-	const routeDataArray = getCleanData(route.match(EXTRACTION_REGEX) ?? []);
+	const routeDataArray = getUnmatchingData(itemId, route);
 
-	const pathDataArray = routeDataArray
+	const pathDataArray = itemDataArray
 		.map((key, index) => {
-			const data = itemDataArray[index];
+			const data = routeDataArray[index];
 			if (!data) return null;
 
 			return { [key]: data };
@@ -39,7 +74,14 @@ function getPathData(itemId: string, route: string) {
  */
 function getMatchingId(itemId: string, route: string) {
 	const matchingItemId = itemId.replace(EXTRACTION_REGEX, "[placeholder]");
-	const matchingRouteId = route.replace(EXTRACTION_REGEX, "[placeholder]");
+	let matchingRouteId = route;
+
+	// Replaces the values with the placeholder item
+	getUnmatchingDataIndices(itemId, route).forEach((indices) => {
+		matchingRouteId = `${route.substring(0, indices[0])}[placeholder]${route.substring(
+			indices[1]
+		)}`;
+	});
 
 	return { itemId: matchingItemId, route: matchingRouteId };
 }
