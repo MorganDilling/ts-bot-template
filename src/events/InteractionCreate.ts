@@ -9,6 +9,9 @@ import CommandNotFoundException from 'exceptions/CommandNotFoundException';
 import ButtonNotFoundException from 'exceptions/ButtonNotFoundException';
 import ModalNotFoundException from 'exceptions/ModalNotFoundException';
 import Exception from 'exceptions/Exception';
+import dynamicCustomIdFinder from 'utils/dynamicCustomIdFinder';
+import Button from 'classes/Button';
+import Modal from 'classes/Modal';
 
 export default class InteractionCreate extends DiscordEvent {
   public once = false;
@@ -30,7 +33,8 @@ export default class InteractionCreate extends DiscordEvent {
         });
       }
     } else if (interaction.isButton()) {
-      const button = client.buttons.get(
+      const [button, pathData] = dynamicCustomIdFinder(
+        client.buttons,
         (interaction as ButtonInteraction).customId
       );
 
@@ -40,7 +44,11 @@ export default class InteractionCreate extends DiscordEvent {
         );
 
       try {
-        button.execute(client, interaction as ButtonInteraction);
+        (button as Button).execute(
+          client,
+          interaction as ButtonInteraction,
+          pathData
+        );
       } catch (error) {
         const exception = error as Exception;
         client.logger.error(error);
@@ -50,7 +58,8 @@ export default class InteractionCreate extends DiscordEvent {
         });
       }
     } else if (interaction.isModalSubmit()) {
-      const modal = client.modals.get(
+      const [modal, pathData] = dynamicCustomIdFinder(
+        client.buttons,
         (interaction as ModalSubmitInteraction).customId
       );
 
@@ -60,7 +69,11 @@ export default class InteractionCreate extends DiscordEvent {
         );
 
       try {
-        modal.execute(client, interaction as ModalSubmitInteraction);
+        (modal as Modal).execute(
+          client,
+          interaction as ModalSubmitInteraction,
+          pathData
+        );
       } catch (error) {
         const exception = error as Exception;
         client.logger.error(error);
