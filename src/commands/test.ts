@@ -3,57 +3,41 @@ import {
   SlashCommandBuilder,
   CommandInteraction,
   CacheType,
-  CommandInteractionOptionResolver,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ActionRowData,
 } from 'discord.js';
 import ExtendedClient from 'classes/ExtendedClient';
 
-export default class Echo extends Command {
+export default class Test extends Command {
   constructor(name: string) {
     super(name);
   }
 
+  description = 'Testing dynamic CustomId buttons';
+
   get data(): Partial<SlashCommandBuilder> {
     return new SlashCommandBuilder()
       .setName(this.name)
-      .setDescription('Echoes your message (example command)')
-      .addStringOption((option) =>
-        option
-          .setName('message')
-          .setDescription('The message to echo')
-          .setRequired(true)
-      );
+      .setDescription(this.description);
   }
 
   public async execute(
     client: ExtendedClient,
     interaction: CommandInteraction<CacheType>
   ): Promise<void> {
-    const message = (
-      interaction.options as CommandInteractionOptionResolver<CacheType>
-    ).getString('message');
-
-    if (!message) {
-      interaction.reply({
-        content: '> :warning: | Please provide a message to echo',
-        ephemeral: true,
-      });
-      return;
-    }
+    const random = Math.random();
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId('echo-open-modal')
-        .setLabel('Open modal')
+        .setCustomId(`testing-button-with-id-${random}`)
+        .setLabel(`Testing button with id ${random}`)
         .setStyle(ButtonStyle.Primary)
     );
 
     await interaction.reply({
-      content: `> :information_source: ${message}`,
       components: [row as any],
+      content: 'Click button',
       ephemeral: true,
     });
   }

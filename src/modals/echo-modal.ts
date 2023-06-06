@@ -11,6 +11,7 @@ export default class EchoModal extends Modal {
       content: `> :information_source: Modal response: ${interaction.fields.getTextInputValue(
         'echo-modal-text-input'
       )}`,
+      ephemeral: true,
     });
   }
 }
