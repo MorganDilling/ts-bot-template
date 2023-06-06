@@ -27,7 +27,7 @@ function getPathData(itemId: string, route: string) {
 		})
 		.filter(Boolean);
 
-	// Forcing types because TypeScript still things null values exist after Boolean filter
+	// Forcing types because TypeScript still thinks null values exist after Boolean filter
 	const pathData = pathDataArray as { [slug: string]: string }[];
 	return pathData.reduce((a, b) => ({ ...a, ...b }), {});
 }
