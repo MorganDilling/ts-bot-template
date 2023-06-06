@@ -11,8 +11,13 @@ const EXTRACTION_REGEX = /\[(.*?)\]/g;
  * @param route The routeId to get the keys from
  */
 function getPathData(itemId: string, route: string) {
-	const itemDataArray = itemId.match(EXTRACTION_REGEX) ?? [];
-	const routeDataArray = route.match(EXTRACTION_REGEX) ?? [];
+	function getCleanData(data: string[]): string[] {
+		return data.map((str) => str.replace(/\[/g, "").replace(/\]/g, ""));
+	}
+
+	const itemDataArray = getCleanData(itemId.match(EXTRACTION_REGEX) ?? []);
+	const routeDataArray = getCleanData(route.match(EXTRACTION_REGEX) ?? []);
+
 	const pathDataArray = routeDataArray
 		.map((key, index) => {
 			const data = itemDataArray[index];
