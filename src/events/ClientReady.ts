@@ -31,7 +31,7 @@ export default class ClientReady extends Event {
 
     if (!id) throw new Error('Client ID not found');
 
-    const commandData = client.commands.map((command) => command.data);
+    const commandData = client.commands.map(command => command.data);
 
     client.logger.info(`Registering ${commandData.length} command(s)`);
     try {

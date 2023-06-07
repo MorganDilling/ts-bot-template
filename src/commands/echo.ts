@@ -20,7 +20,7 @@ export default class Echo extends Command {
     return new SlashCommandBuilder()
       .setName(this.name)
       .setDescription('Echoes your message (example command)')
-      .addStringOption((option) =>
+      .addStringOption(option =>
         option
           .setName('message')
           .setDescription('The message to echo')
